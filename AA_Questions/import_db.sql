@@ -14,9 +14,9 @@ CREATE TABLE questions(
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
     body TEXT NOT NULL,
-    associated_author_id INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
 
-    FOREIGN KEY (associated_author_id) REFERENCES users(id)
+    FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
 
@@ -33,10 +33,12 @@ DROP TABLE IF EXISTS replies;
 CREATE TABLE replies(
     id INTEGER PRIMARY KEY,
     parent_id INTEGER,
+    user_id INTEGER,
     subject_id INTEGER NOT NULL,
     reply TEXT NOT NULL,
 
     FOREIGN KEY (parent_id) REFERENCES replies(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
     FOREIGN KEY (subject_id) REFERENCES questions(id)
 );
 
@@ -55,7 +57,7 @@ VALUES
 
 
 INSERT INTO
-  questions (title, body, associated_author_id)
+  questions (title, body, author_id)
 VALUES
   ('cat?', 'where is my cat?', 1),
   ('dog?', 'where is my dog?', 2);
