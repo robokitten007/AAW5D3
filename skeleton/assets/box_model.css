@@ -46,10 +46,21 @@ ol li{
     margin: 15px 0 15px 0;
 }
 
+input{
+  display: inline-block
+}
 section, aside{
     display: inline-block;
     vertical-align:top;
     margin-top: 20px ;
+}
+
+select {
+  margin: 15px;
+}
+input, textarea, select {
+
+  width: 100px;
 }
 
 /* This selector selects ALL anchor tag children of ALL list elements that
