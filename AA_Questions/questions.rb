@@ -156,7 +156,21 @@ class Reply
         Reply.find_child_replies(self.id)
     end 
 
-    
 end 
+
+def QuestionFollow
+    attr_accessor :user_id, :question_id
+    def self.followers_for_question_id(question_id)
+        followers = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+            SELECT user_id
+            FROM question_follows
+            WHERE question_id = ? 
+        SQL
+        
+
+
+    end 
+end 
+
 
 
