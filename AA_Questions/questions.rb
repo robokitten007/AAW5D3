@@ -28,14 +28,14 @@ class User
             FROM users
             WHERE fname = ? AND lname = ?;
         SQL
-        users.map{|user| User.new(question)}
+        users.map{|user| User.new(user)}
     end
 
 
     def initialize(options)
-        @id = options[id]
-        @fname = options[fname]
-        @lname = options[lname]
+        @id = options['id']
+        @fname = options['fname']
+        @lname = options['lname']
     end
 
     def authored_questions
@@ -69,10 +69,10 @@ class Question
     end
 
     def initialize(options)
-        @id = options[id]
-        @author_id = options[author_id]
-        @body = options[body]
-        @title = options[title]
+        @id = options['id']
+        @author_id = options['author_id']
+        @body = options['body']
+        @title = options['title']
     end 
 
     def author
@@ -111,21 +111,30 @@ class Reply
         replies.map{|reply| Reply.new(reply)}
     end
 
-     def self.find_by_id(id)
-        replies = QuestionsDatabase.instance.execute(<<-SQL, id)
+    def self.find_parent_reply(parent_id)
+        replies = QuestionsDatabase.instance.execute(<<-SQL, parent_id)
             SELECT *
             FROM replies
             WHERE id = ?;
         SQL
-        Reply.new(question[0])
+        replies.map{|reply| Reply.new(reply).reply}
+    end
+
+    def self.find_child_replies(id)
+        replies = QuestionsDatabase.instance.execute(<<-SQL, id)
+            SELECT *
+            FROM replies
+            WHERE parent_id = ? 
+        SQL
+        replies.map {|reply| Reply.new(reply).reply}
     end
 
     def initialize(options)
-        @id = options[id]
-        @user_id = options[id]
-        @parent_id = options[parent_id]
-        @subject_id = options[subject_id]
-        @reply = options[reply]
+        @id = options['id']
+        @user_id = options['id']
+        @parent_id = options['parent_id']
+        @subject_id = options['subject_id']
+        @reply = options['reply']
     end 
 
     def author
@@ -139,17 +148,12 @@ class Reply
     end 
 
     def parent_reply
-        reply = Reply.find_by_id(self.parent_id)
+        reply = Reply.find_parent_reply(self.parent_id)
         reply.reply
     end 
 
     def child_replies
-         replies = QuestionsDatabase.instance.execute(<<-SQL, self.id)
-            SELECT *
-            FROM replies
-            WHERE parent_id = ? 
-        SQL
-        replies.map {|reply| Reply.new(reply).reply} 
+        Reply.find_child_replies(self.id)
     end 
 
     
