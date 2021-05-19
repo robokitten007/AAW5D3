@@ -75,6 +75,18 @@ class Question
         @title = options[title]
     end 
 
+    def author
+        user = User.find_by_id(self.author_id)
+        user.fname + ' ' + user.lname
+    end 
+
+    def replies
+        replies = Reply.find_by_question_id(self.id)
+        replies.each do |ele|
+            puts ele.reply
+        end 
+    end 
+
 end
 
 
@@ -99,6 +111,14 @@ class Reply
         replies.map{|reply| Reply.new(reply)}
     end
 
+     def self.find_by_id(id)
+        replies = QuestionsDatabase.instance.execute(<<-SQL, id)
+            SELECT *
+            FROM replies
+            WHERE id = ?;
+        SQL
+        Reply.new(question[0])
+    end
 
     def initialize(options)
         @id = options[id]
@@ -108,6 +128,31 @@ class Reply
         @reply = options[reply]
     end 
 
+    def author
+        user = User.find_by_id(self.user_id)
+        user.fname + ' ' + user.lname    
+    end 
+
+    def question
+        question = Question.find_by_question_id(self.subject_id)
+        question.title
+    end 
+
+    def parent_reply
+        reply = Reply.find_by_id(self.parent_id)
+        reply.reply
+    end 
+
+    def child_replies
+         replies = QuestionsDatabase.instance.execute(<<-SQL, self.id)
+            SELECT *
+            FROM replies
+            WHERE parent_id = ? 
+        SQL
+        replies.map {|reply| Reply.new(reply).reply} 
+    end 
+
+    
 end 
 
 
